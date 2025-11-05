@@ -1,0 +1,69 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: escola_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - vendor:/var/www/html/vendor
+      - bootstrap_cache:/var/www/html/bootstrap/cache
+      - storage:/var/www/html/storage
+    ports:
+      - "8000:8000"
+    networks:
+      - escola_network
+    depends_on:
+      - db
+      - mailpit
+    environment:
+      - DB_HOST=db
+      - DB_DATABASE=escola_db
+      - DB_USERNAME=escola_user
+      - DB_PASSWORD=escola_pass
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailpit
+      - MAIL_PORT=1025
+
+  db:
+    image: mysql:8.0
+    container_name: escola_db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=escola_db
+      - MYSQL_USER=escola_user
+      - MYSQL_PASSWORD=escola_pass
+      - MYSQL_ROOT_PASSWORD=root_pass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - escola_network
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: escola_mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - escola_network
+
+networks:
+  escola_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  vendor:
+    driver: local
+  bootstrap_cache:
+    driver: local
+  storage:
+    driver: local
+

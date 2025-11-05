@@ -1,0 +1,14 @@
+vendor/
+node_modules/
+storage/logs/
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+.git
+.gitignore
+.env
+public/hot
+public/storage
+npm-debug.log
+yarn-error.log
+*.sqlite
