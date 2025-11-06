@@ -1,0 +1,21 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Disciplina;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class DisciplinaFactory extends Factory
+{
+    protected $model = Disciplina::class;
+
+    public function definition(): array
+    {
+        return [
+            'nome' => $this->faker->words(3, true),
+            'descricao' => $this->faker->sentence(),
+            'carga_horaria' => $this->faker->numberBetween(40, 120),
+        ];
+    }
+}
+
