@@ -1,0 +1,594 @@
+openapi: 3.0.0
+info:
+  title: 'Sistema de Gerenciamento Escolar API'
+  description: 'API RESTful para gerenciamento de cursos, disciplinas, alunos e matrículas'
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Servidor de Desenvolvimento
+paths:
+  /api/alunos:
+    get:
+      tags:
+        - Alunos
+      summary: 'Listar todos os alunos'
+      operationId: 1463f63332ec6f369139325d934a5ed9
+      responses:
+        200:
+          description: 'Lista de alunos'
+    post:
+      tags:
+        - Alunos
+      summary: 'Cadastrar aluno vinculando a pelo menos um curso'
+      operationId: ed3bf1feb9ecb138f92b6d0649bc8b1a
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - nome
+                - cpf
+                - data_nascimento
+                - cursos
+              properties:
+                nome:
+                  type: string
+                  example: 'João Silva'
+                cpf:
+                  description: 'CPF com 11 dígitos'
+                  type: string
+                  example: '12345678901'
+                data_nascimento:
+                  type: string
+                  format: date
+                  example: '2000-01-15'
+                cursos:
+                  description: 'IDs dos cursos (mínimo 1)'
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 1
+              type: object
+      responses:
+        201:
+          description: 'Aluno criado com sucesso'
+        400:
+          description: 'Erro na validação'
+  '/api/alunos/curso/{cursoId}':
+    get:
+      tags:
+        - Alunos
+      summary: 'Listar alunos matriculados em um curso'
+      operationId: e0ba51a0983f1d8ff8daee6acd6209b4
+      parameters:
+        -
+          name: cursoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Lista de alunos do curso'
+  '/api/alunos/cpf/{cpf}':
+    get:
+      tags:
+        - Alunos
+      summary: 'Buscar aluno por CPF e retornar seus dados pessoais + curso(s) matriculado(s)'
+      operationId: 839937c176f7e8852ad50f32a1d9ea49
+      parameters:
+        -
+          name: cpf
+          in: path
+          required: true
+          schema:
+            type: string
+            example: '12345678901'
+      responses:
+        200:
+          description: 'Dados do aluno com cursos'
+        404:
+          description: 'Aluno não encontrado'
+  '/api/alunos/{id}':
+    get:
+      tags:
+        - Alunos
+      summary: 'Buscar aluno por ID'
+      operationId: 970ab74555feea4c86195d0c3d0dbc3c
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Dados do aluno'
+        404:
+          description: 'Aluno não encontrado'
+    put:
+      tags:
+        - Alunos
+      summary: 'Editar aluno'
+      operationId: 2e47dd7eb75cb1f6ed8b160f99b64076
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                nome:
+                  type: string
+                  example: 'João Silva'
+                cpf:
+                  description: 'CPF com 11 dígitos'
+                  type: string
+                  example: '12345678901'
+                data_nascimento:
+                  type: string
+                  format: date
+                  example: '2000-01-15'
+              type: object
+      responses:
+        200:
+          description: 'Aluno atualizado com sucesso'
+        404:
+          description: 'Aluno não encontrado'
+        400:
+          description: 'Erro na validação'
+    delete:
+      tags:
+        - Alunos
+      summary: 'Excluir aluno'
+      operationId: e91696f85ea4ba4964f2352509188bbb
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Aluno excluído com sucesso'
+        404:
+          description: 'Aluno não encontrado'
+  '/api/alunos/{id}/cursos':
+    post:
+      tags:
+        - Alunos
+      summary: 'Vincular aluno a outro(s) curso(s)'
+      operationId: 35312bda0743e88d8e766ea66c7765d5
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - cursos
+              properties:
+                cursos:
+                  description: 'IDs dos cursos (mínimo 1)'
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 1
+                    - 2
+              type: object
+      responses:
+        200:
+          description: 'Aluno vinculado aos cursos com sucesso'
+        400:
+          description: 'Erro na validação'
+        404:
+          description: 'Aluno não encontrado'
+  /api/cursos:
+    get:
+      tags:
+        - Cursos
+      summary: 'Listar todos os cursos'
+      operationId: 23e6e54443dec6892fba8972a142d0a3
+      responses:
+        200:
+          description: 'Lista de cursos'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Curso'
+    post:
+      tags:
+        - Cursos
+      summary: 'Cadastrar novo curso'
+      operationId: d59f77db89090f4565072cd031994baa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - nome
+                - carga_horaria
+              properties:
+                nome:
+                  type: string
+                  example: Direito
+                descricao:
+                  type: string
+                  example: 'Curso de Bacharelado em Direito'
+                carga_horaria:
+                  type: integer
+                  example: 3600
+                data_cadastro:
+                  type: string
+                  format: date
+                  example: '2024-01-01'
+              type: object
+      responses:
+        201:
+          description: 'Curso criado com sucesso'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curso'
+        400:
+          description: 'Erro na validação'
+  '/api/cursos/{id}':
+    get:
+      tags:
+        - Cursos
+      summary: 'Buscar curso por ID'
+      operationId: 5ba1a7783397566d83fb0912ad584cbf
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Dados do curso'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curso'
+        404:
+          description: 'Curso não encontrado'
+    put:
+      tags:
+        - Cursos
+      summary: 'Editar curso'
+      operationId: 7afcadf2e8f72b6ae3b8baa7b7b6d087
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                nome:
+                  type: string
+                  example: Direito
+                descricao:
+                  type: string
+                  example: 'Curso de Bacharelado em Direito'
+                carga_horaria:
+                  type: integer
+                  example: 3600
+                data_cadastro:
+                  type: string
+                  format: date
+                  example: '2024-01-01'
+              type: object
+      responses:
+        200:
+          description: 'Curso atualizado com sucesso'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curso'
+        404:
+          description: 'Curso não encontrado'
+        400:
+          description: 'Erro na validação'
+    delete:
+      tags:
+        - Cursos
+      summary: 'Excluir curso'
+      operationId: 4de2ca5ad25feca1f0032b772b747eff
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Curso excluído com sucesso'
+        400:
+          description: 'Não é possível excluir curso com alunos matriculados'
+  /api/disciplinas:
+    get:
+      tags:
+        - Disciplinas
+      summary: 'Listar todas as disciplinas'
+      operationId: c750937fff6d5b53f45c043e9edf5f56
+      responses:
+        200:
+          description: 'Lista de disciplinas'
+    post:
+      tags:
+        - Disciplinas
+      summary: 'Cadastrar disciplina em um curso'
+      operationId: e11168834ef8584537a369e882003b34
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - nome
+                - carga_horaria
+                - cursos
+              properties:
+                nome:
+                  type: string
+                  example: Matemática
+                descricao:
+                  type: string
+                  example: 'Disciplina de matemática básica'
+                carga_horaria:
+                  type: integer
+                  example: 60
+                cursos:
+                  description: 'IDs dos cursos (mínimo 2)'
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 1
+                    - 2
+              type: object
+      responses:
+        201:
+          description: 'Disciplina criada com sucesso'
+        400:
+          description: 'Erro na validação'
+  '/api/disciplinas/curso/{cursoId}':
+    get:
+      tags:
+        - Disciplinas
+      summary: 'Listar disciplinas por curso'
+      operationId: 65e91da25a01ea5a04a32145d3150cb5
+      parameters:
+        -
+          name: cursoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Lista de disciplinas do curso'
+  '/api/disciplinas/{id}':
+    get:
+      tags:
+        - Disciplinas
+      summary: 'Buscar disciplina por ID'
+      operationId: 8cb7a1260e695bb81573f2e00a473602
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Dados da disciplina'
+        404:
+          description: 'Disciplina não encontrada'
+    put:
+      tags:
+        - Disciplinas
+      summary: 'Editar disciplina'
+      operationId: 1fce4b2e48faed6e528b5c1e13ae61f0
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                nome:
+                  type: string
+                  example: Matemática
+                descricao:
+                  type: string
+                  example: 'Disciplina de matemática básica'
+                carga_horaria:
+                  type: integer
+                  example: 60
+                cursos:
+                  description: 'IDs dos cursos (mínimo 2)'
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 1
+                    - 2
+              type: object
+      responses:
+        200:
+          description: 'Disciplina atualizada com sucesso'
+        404:
+          description: 'Disciplina não encontrada'
+        400:
+          description: 'Erro na validação'
+    delete:
+      tags:
+        - Disciplinas
+      summary: 'Excluir disciplina'
+      operationId: fbd3ffc551df17a20f23448dd2b942dc
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Disciplina excluída com sucesso'
+        404:
+          description: 'Disciplina não encontrada'
+  /api/matriculas:
+    get:
+      tags:
+        - Matrículas
+      summary: 'Listar todas as matrículas'
+      operationId: 5901b4de346e1f89e1bc835030113b4a
+      responses:
+        200:
+          description: 'Lista de matrículas'
+    post:
+      tags:
+        - Matrículas
+      summary: 'Realizar matrícula de um aluno em um curso'
+      operationId: 1cc9a39204b5e04d16b96a62f483a618
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - aluno_id
+                - curso_id
+              properties:
+                aluno_id:
+                  type: integer
+                  example: 1
+                curso_id:
+                  type: integer
+                  example: 1
+                data_matricula:
+                  description: 'Data da matrícula (opcional, padrão: hoje)'
+                  type: string
+                  format: date
+                  example: '2024-01-15'
+              type: object
+      responses:
+        201:
+          description: 'Matrícula realizada com sucesso. E-mail de confirmação enviado.'
+        400:
+          description: 'Erro na validação'
+  '/api/matriculas/{id}':
+    get:
+      tags:
+        - Matrículas
+      summary: 'Buscar matrícula por ID'
+      operationId: 68d613219543e07248706a6ec0fb0e9b
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Dados da matrícula'
+        404:
+          description: 'Matrícula não encontrada'
+  '/api/matriculas/{id}/trancar':
+    put:
+      tags:
+        - Matrículas
+      summary: 'Trancar matrícula de um aluno em um curso'
+      operationId: 8e125d3157ad376ff60ef0f6d9149d0a
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Matrícula trancada com sucesso'
+        404:
+          description: 'Matrícula não encontrada'
+components:
+  schemas:
+    Curso:
+      title: Curso
+      properties:
+        id:
+          type: integer
+          example: 1
+        nome:
+          type: string
+          example: Direito
+        descricao:
+          type: string
+          example: 'Curso de Bacharelado em Direito'
+        carga_horaria:
+          type: integer
+          example: 3600
+        data_cadastro:
+          type: string
+          format: date
+          example: '2024-01-01'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      type: object
+tags:
+  -
+    name: Alunos
+    description: 'Operações relacionadas a alunos'
+  -
+    name: Cursos
+    description: 'Operações relacionadas a cursos'
+  -
+    name: Disciplinas
+    description: 'Operações relacionadas a disciplinas'
+  -
+    name: Matrículas
+    description: 'Operações relacionadas a matrículas'
